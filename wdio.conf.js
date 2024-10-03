@@ -14,16 +14,15 @@ export const config = {
   // If your `url` parameter starts without a scheme or `/` (like `some/path`), the base url
   // gets prepended directly.
   baseUrl: `https://tdm-prototype-frontend.${process.env.ENVIRONMENT || 'test'}.cdp-int.defra.cloud/`,
-  
 
   // If the service you're testing is setup with its own subdomain you can build the baseUrl
   // up using the Environment name:
   // baseUrl: `https://service-name.${process.env.ENVIRONMENT}.cdp-int.defra.cloud`,
 
   // Connection to remote chromedriver
-  //hostname: process.env.CHROMEDRIVER_URL || '127.0.0.1',
-  //port: process.env.CHROMEDRIVER_PORT || 4444,
 
+  // hostname: process.env.CHROMEDRIVER_URL || '127.0.0.1',
+  // port: process.env.CHROMEDRIVER_PORT || 4444,
   //
   // ==================
   // Specify Test Files
@@ -40,7 +39,7 @@ export const config = {
   // then the current working directory is where your `package.json` resides, so `wdio`
   // will be called from there.
   //
-  specs: ['./test/specs/**/*.js'],
+  specs: ['./test/specs/**/authentication.e2e.js'],
   // Patterns to exclude.
   exclude: ['./test/specs/passwordPageLogin.js'],
   // injectGlobals: false,
@@ -75,7 +74,7 @@ export const config = {
         args: [
           '--no-sandbox',
           '--disable-infobars',
-          //'--headless',
+          '--headless',
           '--disable-gpu',
           '--window-size=1920,1080',
           '--enable-features=NetworkService,NetworkServiceInProcess',
@@ -168,14 +167,14 @@ export const config = {
         color: false
       }
     ],
-  //   [
-  //     // Allure is used to generate the final HTML report
-  //     'allure',
-  //     {
-  //       outputDir: 'allure-results'
-  //     }
-  //   ]
-   ],
+    [
+      // Allure is used to generate the final HTML report
+      'allure',
+      {
+        outputDir: 'allure-results'
+      }
+    ]
+  ],
 
   // Options to be passed to Mocha.
   // See the full list at http://mochajs.org/

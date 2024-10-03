@@ -13,7 +13,7 @@
     "test:test": "set ENVIRONMENT=test && wdio run wdio.conf.js",
     "test:dev te": "set ENVIRONMENT=dev && wdio run wdio.conf.js",
     "format": "prettier --write 'test/**/*.js' '**/*.{js,md,json,config.js}'",
-    "format:check": "prettier --check 'test/**/*.js' '**/*.{js,md,json,config.js}'",
+    "format:check": "prettier --check \"test/**/*.js\" \"**/*.{js,md,json,config.js}\"",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "postinstall": "npm run setup:husky",

@@ -1,11 +1,8 @@
 import { browser, expect } from '@wdio/globals'
 import { before } from 'mocha'
 import homePage from '~/test/page-objects/home.page.js'
-import loginPage from '~/test/page-objects/login.page.js'
-
 
 describe('User is able to login and view Notifications', () => {
-
   before(async () => {
     await homePage.open()
   })
@@ -18,13 +15,7 @@ describe('User is able to login and view Notifications', () => {
   })
 
   it('Should verify that all navigation links are correct', async () => {
-    const expectedLinks = [
-      '/',
-      '/notifications',
-      '/movements',
-      '/admin'
-    ];
-    await homePage.verifyNavLinks(expectedLinks);
-  });
-
+    const expectedLinks = ['/', '/notifications', '/movements', '/admin']
+    await homePage.verifyNavLinks(expectedLinks)
+  })
 })

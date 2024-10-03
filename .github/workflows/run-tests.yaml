@@ -2,7 +2,7 @@ name: Journey Tests
 
 on:
   workflow_dispatch: # Manually trigger the suite
-  workflow_call:     # Trigger it from another project
+  workflow_call: # Trigger it from another project
 jobs:
   build:
     name: Journey Tests
