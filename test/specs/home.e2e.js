@@ -1,14 +1,30 @@
 import { browser, expect } from '@wdio/globals'
+import { before } from 'mocha'
+import homePage from '~/test/page-objects/home.page.js'
+import loginPage from '~/test/page-objects/login.page.js'
 
-import ExamplePage from 'page-objects/example.page'
 
-describe('Home page', () => {
-  it('Should be on the "Home" page', async () => {
-    await ExamplePage.open()
+describe('User is able to login and view Notifications', () => {
 
-    await expect(browser).toHaveTitle('Journey Test | cdp-example-journey-test')
-
-    await expect(ExamplePage.title()).toHaveText('Journey Test')
-    await expect(ExamplePage.caption()).toHaveText('This is an example page.')
+  before(async () => {
+    await homePage.open()
   })
+
+  it('Should be on the "Home" page', async () => {
+    await expect(browser).toHaveTitle(`Home | Trade Data Matching ALVS V2 POC`)
+
+    await homePage.defraLoginLink.click()
+    await expect(browser).toHaveTitle(`Auth | Trade Data Matching ALVS V2 POC`)
+  })
+
+  it('Should verify that all navigation links are correct', async () => {
+    const expectedLinks = [
+      '/',
+      '/notifications',
+      '/movements',
+      '/admin'
+    ];
+    await homePage.verifyNavLinks(expectedLinks);
+  });
+
 })
