@@ -1,5 +1,6 @@
 #!/bin/sh
 
+echo "Starting entrypoint.sh script"
 echo "run_id: $RUN_ID"
 npm test
 test_exit_code=$?

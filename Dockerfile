@@ -9,12 +9,9 @@ RUN apk add --no-cache \
     curl \
     aws-cli
 
-USER node
+WORKDIR /app
 
-WORKDIR /home/node/app
-
-COPY --chown=node:node . .
-
+COPY . .
 RUN npm install
 
 ENTRYPOINT [ "./entrypoint.sh" ]

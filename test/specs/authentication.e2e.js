@@ -4,7 +4,7 @@ import loginPage from '~/test/page-objects/login.page.js'
 import notificationPage from '~/test/page-objects/notifications.page.js'
 import movementsPage from '~/test/page-objects/movements.page.js'
 
-const testUserEmail = 'adnan.arshad@esynergy.co.uk'
+const testUserEmail = 'test@equalexpert.com'
 
 describe.only('User is able to login', () => {
   beforeEach(async () => {
@@ -22,7 +22,7 @@ describe.only('User is able to login', () => {
 
     await loginPage.clickLoginLinkByEmail(testUserEmail)
     await expect(browser).toHaveTitle(`Auth | Trade Data Matching ALVS V2 POC`)
-    await homePage.verifyLinkText('Sign out Adnan Arshad')
+    await homePage.verifyLinkText('Sign out test user')
 
     await notificationPage.notificationsLink.click()
     await expect(browser).toHaveTitle(
@@ -37,9 +37,9 @@ describe.only('User is able to login', () => {
 
   it('User is able to logout sucessfully', async () => {
     await expect(browser).toHaveTitle(`Home | Trade Data Matching ALVS V2 POC`)
-    await homePage.verifyLinkText('Sign out Adnan Arshad')
+    await homePage.verifyLinkText('Sign out test user')
 
-    await homePage.clickLinkByText('Sign out Adnan Arshad')
+    await homePage.clickLinkByText('Sign out test user')
     await expect(browser).toHaveTitle(`Home | Trade Data Matching ALVS V2 POC`)
   })
 })
