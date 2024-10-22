@@ -1,4 +1,8 @@
+import allure from 'allure-commandline'
+import { browser } from '@wdio/globals'
+
 const debug = process.env.DEBUG
+const oneMinute = 60 * 1000
 const oneHour = 60 * 60 * 1000
 
 export const config = {
@@ -8,21 +12,6 @@ export const config = {
   // ====================
   // WebdriverIO supports running e2e tests as well as unit and component tests.
   runner: 'local',
-  //
-  // Set a base URL in order to shorten url command calls. If your `url` parameter starts
-  // with `/`, the base url gets prepended, not including the path portion of your baseUrl.
-  // If your `url` parameter starts without a scheme or `/` (like `some/path`), the base url
-  // gets prepended directly.
-  baseUrl: `https://tdm-prototype-frontend.${process.env.ENVIRONMENT || 'test'}.cdp-int.defra.cloud/`,
-
-  // If the service you're testing is setup with its own subdomain you can build the baseUrl
-  // up using the Environment name:
-  // baseUrl: `https://service-name.${process.env.ENVIRONMENT}.cdp-int.defra.cloud`,
-
-  // Connection to remote chromedriver
-
-  // hostname: process.env.CHROMEDRIVER_URL || '127.0.0.1',
-  // port: process.env.CHROMEDRIVER_PORT || 4444,
   //
   // ==================
   // Specify Test Files
@@ -39,9 +28,11 @@ export const config = {
   // then the current working directory is where your `package.json` resides, so `wdio`
   // will be called from there.
   //
-  specs: ['./test/specs/**/authentication.e2e.js'],
+  specs: ['./test/specs/**/*.e2e.js'],
   // Patterns to exclude.
-  exclude: ['./test/specs/passwordPageLogin.js'],
+  exclude: [
+    // 'path/to/excluded/files'
+  ],
   // injectGlobals: false,
   //
   // ============
@@ -59,36 +50,28 @@ export const config = {
   // and 30 processes will get spawned. The property handles how many capabilities
   // from the same test should run tests.
   //
-  maxInstances: 1,
+  maxInstances: debug ? 1 : 3,
   //
   // If you have trouble getting all important capabilities together, check out the
   // Sauce Labs platform configurator - a great tool to configure your capabilities:
   // https://saucelabs.com/platform/platform-configurator
   //
-
-  capabilities: [
-    {
-      maxInstances: 1,
-      browserName: 'chrome',
-      'goog:chromeOptions': {
-        args: [
-          '--no-sandbox',
-          '--disable-infobars',
-          '--headless',
-          '--disable-gpu',
-          '--window-size=1920,1080',
-          '--enable-features=NetworkService,NetworkServiceInProcess',
-          '--password-store=basic',
-          '--use-mock-keychain',
-          '--dns-prefetch-disable',
-          '--disable-background-networking',
-          '--disable-remote-fonts',
-          '--ignore-certificate-errors',
-          '--host-resolver-rules=MAP www.googletagmanager.com 127.0.0.1'
-        ]
-      }
-    }
-  ],
+  capabilities: debug
+    ? [{ browserName: 'chrome' }]
+    : [
+        {
+          maxInstances: 1,
+          browserName: 'chrome',
+          'goog:chromeOptions': {
+            args: [
+              '--no-sandbox',
+              '--disable-infobars',
+              '--disable-gpu',
+              '--window-size=1920,1080'
+            ]
+          }
+        }
+      ],
 
   execArgv: debug ? ['--inspect'] : [],
 
@@ -117,7 +100,13 @@ export const config = {
   //
   // If you only want to run your tests until a specific amount of tests have failed use
   // bail (default is 0 - don't bail, run all tests).
-  bail: 0,
+  bail: 1,
+  //
+  // Set a base URL in order to shorten url command calls. If your `url` parameter starts
+  // with `/`, the base url gets prepended, not including the path portion of your baseUrl.
+  // If your `url` parameter starts without a scheme or `/` (like `some/path`), the base url
+  // gets prepended directly.
+  baseUrl: 'http://localhost:3009',
   //
   // Default timeout for all waitFor* commands.
   waitforTimeout: 10000,
@@ -158,17 +147,8 @@ export const config = {
   // see also: https://webdriver.io/docs/dot-reporter
 
   reporters: [
+    'spec',
     [
-      // Spec reporter provides rolling output to the logger so you can see it in-progress
-      'spec',
-      {
-        addConsoleLogs: false,
-        realtimeReporting: false,
-        color: false
-      }
-    ],
-    [
-      // Allure is used to generate the final HTML report
       'allure',
       {
         outputDir: 'allure-results'
@@ -180,7 +160,8 @@ export const config = {
   // See the full list at http://mochajs.org/
   mochaOpts: {
     ui: 'bdd',
-    timeout: debug ? oneHour : 80000
+    timeout: debug ? oneHour : 60000,
+    bail: true
   },
   //
   // =====
@@ -275,8 +256,12 @@ export const config = {
     context,
     { error, result, duration, passed, retries }
   ) {
+    await browser.takeScreenshot()
+
     if (error) {
-      await browser.takeScreenshot()
+      browser.executeScript(
+        'browserstack_executor: {"action": "setSessionStatus", "arguments": {"status":"failed","reason": "At least 1 assertion failed"}}'
+      )
     }
   },
 
@@ -316,7 +301,26 @@ export const config = {
    * @param {Array.<Object>} capabilities list of capabilities details
    * @param {<Object>} results object containing test results
    */
-  onComplete: function (exitCode, config, capabilities, results) {}
+  onComplete: function (exitCode, config, capabilities, results) {
+    const reportError = new Error('Could not generate Allure report')
+    const generation = allure(['generate', 'allure-results', '--clean'])
+
+    return new Promise((resolve, reject) => {
+      const generationTimeout = setTimeout(() => reject(reportError), oneMinute)
+
+      generation.on('exit', function (exitCode) {
+        clearTimeout(generationTimeout)
+
+        if (exitCode !== 0) {
+          return reject(reportError)
+        }
+
+        allure(['open'])
+        resolve()
+      })
+    })
+  }
+
   /**
    * Gets executed when a refresh happens.
    * @param {string} oldSessionId session ID of the old session
