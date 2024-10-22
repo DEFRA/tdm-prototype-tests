@@ -6,7 +6,7 @@ import notificationPage from '~/test/page-objects/notifications.page.js'
 
 describe('User is able to view Notifications', () => {
   const expectedChedTypes = ['CHEDA', 'CHEDD', 'CHEDP', 'CHEDPP']
-  const testUserEmail = 'adnan.arshad@esynergy.co.uk'
+  const testUserEmail = 'test@esynergy.co.uk'
   before(async () => {
     await homePage.open()
     await homePage.defraLoginLink.click()
